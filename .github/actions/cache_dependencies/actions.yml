@@ -1,0 +1,32 @@
+name: "Get and cache dependencies"
+description: 'Get the dependencies and cache them'
+runs:
+  using: 'composite'
+  steps:
+    - name: Get code
+      uses: actions/checkout@v3
+    - name: Cache dependencies
+      id: cache
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+    - name: Install dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: npm ci 
+      shell: bash
+
+
+
+
+#### explaination
+
+### name and description are reserved key words where it will be used to specify the name and description of actions
+### runs , using are also a reserved key word 
+### using: 'composite' this composite is an action type 
+
+
+### when we are using specially run keywork to ececute the command they we need the specail key word called shell
+### shell is used to specify the which shell should be used for executing the steps when creating a custom composite action 
+### here we are using the shell called bash 
+### also we can specify or used the our own actions
