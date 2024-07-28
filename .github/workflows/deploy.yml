@@ -1,5 +1,8 @@
 name: Deployment
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
@@ -10,7 +13,12 @@ jobs:
       - name: Get code
         uses: actions/checkout@v4
       - name: load and cache dependencies
+        id: cache-deps
         uses: ./.github/actions/cache_dependencies
+        with: 
+          caching: false
+      - name: output information
+        run: echo "Cache used ? ${{ steps.cache-deps.outputs.used-cache }} "
       - name: Lint code
         run: npm run lint
   test:
@@ -18,15 +26,8 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: Cache dependencies
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
+      - name: load and cache dependencies
+        uses: ./.github/actions/cache_dependencies
       - name: Test code
         id: run-tests
         run: npm run test
@@ -42,15 +43,8 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: Cache dependencies
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
+      - name: load and cache dependencies
+        uses: ./.github/actions/cache_dependencies
       - name: Build website
         run: npm run build
       - name: Upload artifacts
